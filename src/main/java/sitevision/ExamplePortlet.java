@@ -5,7 +5,9 @@ import senselogic.sitevision.api.context.PortletContextUtil;
 import senselogic.sitevision.api.metadata.MetadataUtil;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
@@ -25,17 +27,24 @@ public class ExamplePortlet extends GenericPortlet {
         MetadataUtil metaUtil = utils.getMetadataUtil();
 
         Node currentPage = utils.getPortletContextUtil().getCurrentPage();
-        String category = "";
+        String categoryList = "";
         try {
             Node newsNode = currentPage.getNode("News");
-            category = newsNode.getProperty("category").getString();
+
+            Property category = newsNode.getProperty("category");
+            if (category != null) {
+                Value[] values = category.getValues();
+                for (Value v : values) {
+                    categoryList += v.getString() + " ;";
+                }
+            }
         } catch (RepositoryException e) {
             e.printStackTrace();
         }
 
 
         PrintWriter writer = response.getWriter();
-        writer.write("List of all categories: " + category);
+        writer.write("List of all categories: " + categoryList);
         writer.close();
     }
 }
